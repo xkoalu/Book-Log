@@ -282,9 +282,126 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 .welcome ul { text-align: left; padding-left: 20px; color: var(--ink-2); }
 .news-v { font-family: var(--serif); font-size: 20px; margin: 4px 0 8px; }
 
+/* ===== Atmosphere (0.3.0): paper, shapes, details, light by time of day ===== */
+:root { --ribbon: #8E3B36; --texture: var(--tex-l, none); --tex-size: 128px 128px; }
+:root[data-theme="dark"] { --texture: var(--tex-d, none); }
+@media (prefers-color-scheme: dark) { :root[data-theme="auto"] { --texture: var(--tex-d, none); } }
+body { background-color: var(--bg); background-image: var(--texture); background-size: var(--tex-size); }
+#app { position: relative; z-index: 1; }
+#bgdeco { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--vine-tr), var(--vine-bl); background-repeat: no-repeat;
+  background-position: right -60px top -30px, left -40px bottom 40px; background-size: 390px 420px, 390px 420px; }
+:root[data-theme="dark"] #bgdeco { background-image: var(--stars); background-repeat: repeat; background-position: center top; background-size: 390px 844px; }
+@media (prefers-color-scheme: dark) { :root[data-theme="auto"] #bgdeco { background-image: var(--stars); background-repeat: repeat; background-position: center top; background-size: 390px 844px; } }
+.top { background: transparent; transition: background-color 0.2s; }
+.top.solid { background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); }
+.card, .tile, .ach, .shelf, .sheet:not(.modal), .modal-card, .sort-btn, .chip:not(.on), .seg button:not(.on), .banner { background-image: var(--texture); background-size: var(--tex-size); }
+:root[data-theme="dark"] .card, :root[data-theme="dark"] .hero, :root[data-theme="dark"] .tile, :root[data-theme="dark"] .ach { background-color: rgba(58, 47, 41, 0.84); }
+@media (prefers-color-scheme: dark) { :root[data-theme="auto"] .card, :root[data-theme="auto"] .hero, :root[data-theme="auto"] .tile, :root[data-theme="auto"] .ach { background-color: rgba(58, 47, 41, 0.84); } }
+
+/* Bookmark ribbon on books you are reading */
+.read-card { position: relative; }
+.read-card.rib .info { padding-right: 20px; }
+.read-card.rib::after { content: ''; position: absolute; top: -5px; right: 18px; width: 15px; height: 50px; pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.14) 45%, rgba(0, 0, 0, 0.2)), var(--ribbon);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
+
+/* Gold flourish after section titles in the main views */
+#view .section-title { display: flex; align-items: center; gap: 10px; }
+#view .section-title::after { content: ''; flex: 0 1 120px; height: 14px; background: var(--flourish) no-repeat left center / 120px 14px; opacity: 0.85; }
+
+/* Profile as ex-libris with a wax seal */
+.hero { border-color: var(--glass-line);
+  background-image: var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br), var(--texture);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  background-position: 8px 8px, calc(100% - 8px) 8px, 8px calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), 0 0;
+  background-size: 40px 40px, 40px 40px, 40px 40px, 40px 40px, var(--tex-size); }
+.seal { display: inline-block; margin-bottom: 8px; -webkit-filter: drop-shadow(0 3px 3px rgba(60, 10, 10, 0.4)); filter: drop-shadow(0 3px 3px rgba(60, 10, 10, 0.4)); }
+.hero .seal .lvl { margin: 0; width: 84px; height: 84px; border: 0; position: relative; -webkit-clip-path: var(--seal); clip-path: var(--seal);
+  background: radial-gradient(circle at 36% 30%, #C0473F, #922D28 55%, #6A1D1A); color: #F2C2B8; font-size: 32px;
+  text-shadow: 0 -1px 0 rgba(60, 0, 0, 0.55), 0 1px 0 rgba(255, 220, 210, 0.25); }
+.hero .seal .lvl::after { content: ''; position: absolute; inset: 11px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(70, 10, 10, 0.45), 0 0 0 1px rgba(255, 190, 180, 0.18); }
+
+/* Achievements as embossed stamps */
+.ach .emb { border: 2px solid var(--gold); box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 3px var(--gold); transform: rotate(-8deg);
+  background: radial-gradient(circle at 40% 35%, rgba(255, 236, 190, 0.22), transparent 65%); }
+.ach.locked .emb { border: 1.5px dashed var(--line); box-shadow: none; transform: none; background: none; }
+
+/* Light by time of day: each layer blends on its own with the app below; sheets stay neutral above it */
+.lt { position: fixed; inset: 0; z-index: 40; pointer-events: none; display: none; overflow: hidden; }
+.lt .win { position: absolute; left: -10px; top: 150px; width: 320px; height: 470px; transform: skewX(-16deg) rotate(6deg);
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 18px; }
+.lt .win i { background: rgb(255, 240, 200); }
+:root[data-light="morning"] .lt-a { display: block; background: rgba(150, 130, 110, 0.09); mix-blend-mode: multiply; }
+:root[data-light="morning"] .lt-b { display: block; mix-blend-mode: soft-light; -webkit-filter: blur(7px); filter: blur(7px); }
+:root[data-light="evening"] .lt-a { display: block; background: radial-gradient(ellipse 95% 80% at 75% 28%, transparent 42%, rgba(90, 45, 15, 0.36)), rgba(255, 208, 155, 0.24); mix-blend-mode: multiply; }
+:root[data-light="evening"] .lt-c { display: block; background: radial-gradient(circle at 88% 20%, rgba(255, 200, 120, 0.75), rgba(255, 170, 80, 0.25) 30%, transparent 58%); mix-blend-mode: soft-light; }
+:root[data-light="fire"] .lt-a { display: block; background: radial-gradient(ellipse 120% 60% at 50% 105%, rgba(255, 110, 30, 0.42), rgba(255, 90, 20, 0.13) 50%, transparent 75%); mix-blend-mode: screen; animation: flicker 3.6s ease-in-out infinite alternate; }
+:root[data-light="fire"] .lt-d { display: block; }
+.ember { position: absolute; border-radius: 50%; background: #FFC46B; box-shadow: 0 0 6px 2px rgba(255, 120, 40, 0.7); opacity: 0; animation-timing-function: linear; animation-iteration-count: infinite; }
+@keyframes flicker { from { opacity: 0.82; } to { opacity: 1; } }
+@keyframes rise1 { 0% { transform: translate3d(0, 0, 0); opacity: 0; } 12% { opacity: 0.9; } 75% { opacity: 0.55; } 100% { transform: translate3d(14px, -48vh, 0); opacity: 0; } }
+@keyframes rise2 { 0% { transform: translate3d(0, 0, 0); opacity: 0; } 12% { opacity: 0.85; } 75% { opacity: 0.5; } 100% { transform: translate3d(-18px, -42vh, 0); opacity: 0; } }
+@keyframes rise3 { 0% { transform: translate3d(0, 0, 0); opacity: 0; } 15% { opacity: 0.8; } 75% { opacity: 0.45; } 100% { transform: translate3d(6px, -55vh, 0); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-light="fire"] .lt-a { animation: none; }
+  .ember { animation: none !important; opacity: 0.6; }
+}
+
+/* ===== Install as app (0.4.0) ===== */
+.ic .fillc { fill: currentColor; stroke: none; }
+.devhint { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.why { font-size: 15px; color: var(--ink-2); line-height: 1.45; margin: 0 0 12px; }
+.steps { list-style: none; margin: 0; padding: 0; }
+.steps li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); font-size: 15px; line-height: 1.4; }
+.steps li:first-child { border-top: 0; }
+.steps .n { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--gold); color: var(--gold); font: 600 14px/23px var(--serif); text-align: center; box-sizing: border-box; }
+.steps .sic { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--ink); margin-top: -4px; }
+.steps .sic .ic { width: 20px; height: 20px; }
+.steps .st { flex: 1; min-width: 0; }
+.steps b { font-weight: 600; }
+.note { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--paper); border: 1px solid var(--glass-line); font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.note b { color: var(--ink); }
+.note.warn { border-color: var(--gold); color: var(--ink); font-size: 14.5px; }
+.note.ok { display: flex; gap: 8px; align-items: center; color: var(--ink); }
+.inst-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: var(--paper); border: 1px solid var(--glass-line); margin-bottom: 12px; }
+.inst-card img { width: 48px; height: 48px; border-radius: 12px; }
+.inst-card b { font-size: 18px; }
+.foot2 { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.textbtn { min-height: 40px; background: none; border: 0; color: var(--ink-2); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.row-link { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 14px; background: var(--paper); background-image: var(--texture); background-size: var(--tex-size); border: 1px solid var(--line); text-align: left; cursor: pointer; }
+.row-link .grow { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.acc { border-top: 1px solid var(--line); }
+.acc:last-of-type { border-bottom: 1px solid var(--line); }
+.acc summary { display: flex; align-items: center; gap: 10px; padding: 14px 2px; font-size: 15.5px; cursor: pointer; list-style: none; min-height: 24px; }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary span { flex: 1; }
+.acc .acc-chev { transition: transform 0.2s; color: var(--ink-2); }
+.acc[open] .acc-chev { transform: rotate(90deg); }
+.acc-b { padding: 0 2px 12px; }
+/* Wide screens: windows as a centred card instead of a full-width bottom sheet */
+@media (min-width: 700px) {
+  .sheet.modal { justify-content: center; align-items: center; padding: 24px; }
+  .sheet.modal .modal-card { width: 100%; max-width: 520px; border-radius: 22px; padding-bottom: 16px; max-height: calc(100vh - 48px); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.45); }
+}
+
+/* Generated by make_deco.py – self-drawn decorations, no external images. */
+:root {
+  --vine-tr: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22390%22%20height%3D%22420%22%20viewBox%3D%220%200%20390%20420%22%3E%3Cpath%20d%3D%22M390.0%200.0%20L386.7%205.6%20L383.3%2011.1%20L379.9%2016.6%20L376.4%2022.2%20L372.8%2027.7%20L369.0%2033.1%20L365.1%2038.6%20L361.0%2044.0%20L356.7%2049.3%20L352.1%2054.7%20L347.3%2059.9%20L342.3%2065.1%20L337.0%2070.2%20L331.5%2075.3%20L325.7%2080.3%20L319.7%2085.2%20L313.4%2090.1%20L306.9%2094.8%20L300.1%2099.5%20L293.2%20104.1%20L286.0%20108.6%20L278.7%20113.0%20L271.3%20117.3%20L263.7%20121.5%20L256.1%20125.6%20L248.4%20129.5%20L240.7%20133.4%20L232.9%20137.2%20L225.3%20140.9%20L217.6%20144.4%20L210.1%20147.9%20L202.7%20151.2%20L195.4%20154.5%20L188.3%20157.6%20L181.3%20160.6%20L174.6%20163.6%20L168.1%20166.4%20L161.9%20169.1%20L155.9%20171.7%20L150.1%20174.2%20L144.6%20176.6%20L139.4%20179.0%20L134.4%20181.2%20L129.6%20183.4%20L125.1%20185.4%20L120.9%20187.4%20L116.8%20189.4%20L112.9%20191.2%20L109.1%20193.0%20L105.5%20194.7%20L102.0%20196.4%20L98.6%20198.0%20L95.3%20199.5%20L92.0%20201.1%20L88.6%20202.5%20L85.3%20204.0%20L81.9%20205.4%20L78.3%20206.8%20L74.7%20208.2%20L70.9%20209.6%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.76%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.55%22/%3E%3Cg%20transform%3D%22translate%28379.9%2016.6%29%20rotate%28167.9%29%20scale%281.07%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28365.1%2038.6%29%20rotate%2876.6%29%20scale%281.10%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cpath%20d%3D%22M365.1%2038.6%20Q%20351.6%2022.4%20343.5%2030.5%20Q%20351.6%2037.0%20354.0%2030.5%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.35%22%20opacity%3D%220.55%22/%3E%3Cg%20transform%3D%22translate%28347.3%2059.9%29%20rotate%28174.8%29%20scale%281.23%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28325.7%2080.3%29%20rotate%2877.1%29%20scale%281.44%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28300.1%2099.5%29%20rotate%28205.1%29%20scale%281.13%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cpath%20d%3D%22M300.1%2099.5%20Q%20313.6%2083.3%20321.7%2091.4%20Q%20313.6%2097.9%20311.2%2091.4%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.35%22%20opacity%3D%220.55%22/%3E%3Cg%20transform%3D%22translate%28271.3%20117.3%29%20rotate%2897.1%29%20scale%281.16%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28240.7%20133.4%29%20rotate%28197.9%29%20scale%281.07%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28210.1%20147.9%29%20rotate%28110.2%29%20scale%281.51%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cpath%20d%3D%22M210.1%20147.9%20Q%20196.6%20131.7%20188.5%20139.8%20Q%20196.6%20146.3%20199.0%20139.8%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.35%22%20opacity%3D%220.55%22/%3E%3Cg%20transform%3D%22translate%28181.3%20160.6%29%20rotate%28217.2%29%20scale%281.45%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28155.9%20171.7%29%20rotate%2896.4%29%20scale%281.12%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28134.4%20181.2%29%20rotate%28203.4%29%20scale%281.35%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cpath%20d%3D%22M134.4%20181.2%20Q%20147.9%20165.0%20156.0%20173.1%20Q%20147.9%20179.6%20145.5%20173.1%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.35%22%20opacity%3D%220.55%22/%3E%3Cg%20transform%3D%22translate%28116.8%20189.4%29%20rotate%2896.4%29%20scale%281.47%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28102.0%20196.4%29%20rotate%28216.6%29%20scale%281.06%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2888.6%20202.5%29%20rotate%28101.2%29%20scale%281.38%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.32%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.55%22/%3E%3C/g%3E%3Cpath%20d%3D%22M88.6%20202.5%20Q%2075.1%20186.3%2067.0%20194.4%20Q%2075.1%20200.9%2077.6%20194.4%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.35%22%20opacity%3D%220.55%22/%3E%3C/svg%3E');
+  --vine-bl: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22390%22%20height%3D%22420%22%20viewBox%3D%220%200%20390%20420%22%3E%3Cpath%20d%3D%22M0.0%20420.0%20L7.6%20418.5%20L15.1%20416.9%20L22.6%20415.4%20L30.0%20413.8%20L37.3%20412.3%20L44.4%20410.6%20L51.4%20409.0%20L58.3%20407.3%20L64.9%20405.6%20L71.3%20403.9%20L77.6%20402.1%20L83.5%20400.2%20L89.3%20398.3%20L94.8%20396.3%20L100.1%20394.3%20L105.1%20392.1%20L110.0%20390.0%20L114.6%20387.7%20L119.0%20385.3%20L123.2%20382.9%20L127.2%20380.4%20L131.1%20377.8%20L134.8%20375.1%20L138.5%20372.3%20L142.0%20369.4%20L145.5%20366.4%20L149.0%20363.4%20L152.5%20360.2%20L156.0%20356.9%20L159.6%20353.5%20L163.3%20350.1%20L167.0%20346.5%20L170.9%20342.8%20L175.0%20339.0%20L179.2%20335.2%20L183.6%20331.2%20L188.3%20327.1%20L193.1%20323.0%20L198.2%20318.7%20L203.5%20314.4%20L209.1%20310.0%20L214.9%20305.4%20L220.9%20300.8%20L227.1%20296.2%20L233.6%20291.4%20L240.3%20286.6%20L247.1%20281.7%20L254.2%20276.7%20L261.3%20271.7%20L268.6%20266.6%20L276.1%20261.5%20L283.5%20256.3%20L291.1%20251.1%20L298.6%20245.8%20L306.2%20240.5%20L313.7%20235.2%20L321.2%20229.8%20L328.6%20224.4%20L335.9%20219.1%20L343.0%20213.7%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.62%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.5%22/%3E%3Cg%20transform%3D%22translate%2822.6%20415.4%29%20rotate%2839.8%29%20scale%281.12%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%2851.4%20409.0%29%20rotate%28-56.9%29%20scale%281.37%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cpath%20d%3D%22M51.4%20409.0%20Q%2038.9%20394.0%2031.4%20401.5%20Q%2038.9%20407.5%2041.2%20401.5%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.25%22%20opacity%3D%220.5%22/%3E%3Cg%20transform%3D%22translate%2877.6%20402.1%29%20rotate%2823.4%29%20scale%281.19%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28100.1%20394.3%29%20rotate%28-84.4%29%20scale%280.98%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28119.0%20385.3%29%20rotate%2824.8%29%20scale%281.25%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cpath%20d%3D%22M119.0%20385.3%20Q%20131.5%20370.3%20139.0%20377.8%20Q%20131.5%20383.8%20129.2%20377.8%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.25%22%20opacity%3D%220.5%22/%3E%3Cg%20transform%3D%22translate%28134.8%20375.1%29%20rotate%28-77.6%29%20scale%281.13%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28149.0%20363.4%29%20rotate%2815.7%29%20scale%281.16%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28163.3%20350.1%29%20rotate%28-101.6%29%20scale%281.02%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cpath%20d%3D%22M163.3%20350.1%20Q%20150.8%20335.1%20143.3%20342.6%20Q%20150.8%20348.6%20153.0%20342.6%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.25%22%20opacity%3D%220.5%22/%3E%3Cg%20transform%3D%22translate%28179.2%20335.2%29%20rotate%283.8%29%20scale%280.99%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28198.2%20318.7%29%20rotate%28-92.3%29%20scale%281.40%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28220.9%20300.8%29%20rotate%2817.7%29%20scale%281.32%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cpath%20d%3D%22M220.9%20300.8%20Q%20233.4%20285.8%20240.9%20293.3%20Q%20233.4%20299.3%20231.1%20293.3%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.25%22%20opacity%3D%220.5%22/%3E%3Cg%20transform%3D%22translate%28247.1%20281.7%29%20rotate%28-85.0%29%20scale%281.31%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28276.1%20261.5%29%20rotate%287.8%29%20scale%281.08%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cg%20transform%3D%22translate%28306.2%20240.5%29%20rotate%28-92.0%29%20scale%281.30%29%22%3E%3Cpath%20d%3D%22M0%200%20C%204.5%20-7.0%2C%2013.5%20-7.0%2C%2018%200%20C%2013.5%207.0%2C%204.5%207.0%2C%200%200%20Z%22%20fill%3D%22%23B4873A%22%20opacity%3D%220.3%22/%3E%3Cpath%20d%3D%22M0%200%20L16%200%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%220.7%22%20opacity%3D%220.5%22/%3E%3C/g%3E%3Cpath%20d%3D%22M306.2%20240.5%20Q%20293.7%20225.5%20286.2%20233.0%20Q%20293.7%20239.0%20296.0%20233.0%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.25%22%20opacity%3D%220.5%22/%3E%3C/svg%3E');
+  --stars: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22390%22%20height%3D%22844%22%20viewBox%3D%220%200%20390%20844%22%3E%3Ccircle%20cx%3D%2292.8%22%20cy%3D%22459.3%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%22184.9%22%20cy%3D%22490.2%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.36%22/%3E%3Ccircle%20cx%3D%22326.6%22%20cy%3D%22218.9%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.44%22/%3E%3Ccircle%20cx%3D%22279.7%22%20cy%3D%22456.6%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.56%22/%3E%3Ccircle%20cx%3D%22249.2%22%20cy%3D%22127.1%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.74%22/%3E%3Ccircle%20cx%3D%22204.0%22%20cy%3D%22625.6%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.42%22/%3E%3Ccircle%20cx%3D%22373.4%22%20cy%3D%2236.1%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.72%22/%3E%3Ccircle%20cx%3D%22105.1%22%20cy%3D%22502.0%22%20r%3D%221.1%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22359.2%22%20cy%3D%22333.3%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.55%22/%3E%3Ccircle%20cx%3D%22364.9%22%20cy%3D%22741.8%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.37%22/%3E%3Ccircle%20cx%3D%22193.0%22%20cy%3D%22217.7%22%20r%3D%221.1%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%22333.5%22%20cy%3D%22355.4%22%20r%3D%221.1%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.61%22/%3E%3Ccircle%20cx%3D%22208.3%22%20cy%3D%22344.0%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%22266.0%22%20cy%3D%22784.0%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.80%22/%3E%3Ccircle%20cx%3D%22261.8%22%20cy%3D%22137.7%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%22352.8%22%20cy%3D%22480.3%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.63%22/%3E%3Ccircle%20cx%3D%22385.3%22%20cy%3D%22225.4%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.38%22/%3E%3Ccircle%20cx%3D%22333.0%22%20cy%3D%22835.4%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%2226.0%22%20cy%3D%22757.1%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.48%22/%3E%3Ccircle%20cx%3D%22299.8%22%20cy%3D%22736.6%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%22297.0%22%20cy%3D%22318.9%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%22343.6%22%20cy%3D%22827.7%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.46%22/%3E%3Ccircle%20cx%3D%2214.0%22%20cy%3D%226.1%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%2212.2%22%20cy%3D%22166.6%22%20r%3D%221.1%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.48%22/%3E%3Ccircle%20cx%3D%22102.7%22%20cy%3D%22582.1%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%22373.9%22%20cy%3D%22756.8%22%20r%3D%221.1%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.52%22/%3E%3Ccircle%20cx%3D%22339.3%22%20cy%3D%22325.9%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.66%22/%3E%3Ccircle%20cx%3D%2240.0%22%20cy%3D%22821.1%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.47%22/%3E%3Ccircle%20cx%3D%22247.4%22%20cy%3D%22604.0%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.55%22/%3E%3Ccircle%20cx%3D%22100.7%22%20cy%3D%22255.7%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.36%22/%3E%3Ccircle%20cx%3D%22161.9%22%20cy%3D%22489.5%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.52%22/%3E%3Ccircle%20cx%3D%22229.8%22%20cy%3D%22112.5%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.56%22/%3E%3Ccircle%20cx%3D%22264.9%22%20cy%3D%22297.6%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.68%22/%3E%3Ccircle%20cx%3D%228.7%22%20cy%3D%2251.1%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%2297.9%22%20cy%3D%22385.1%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%2269.2%22%20cy%3D%22156.3%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.73%22/%3E%3Ccircle%20cx%3D%22103.0%22%20cy%3D%22664.5%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%22480.5%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%2286.8%22%20cy%3D%22678.4%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%22264.4%22%20cy%3D%22548.2%22%20r%3D%220.6%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22125.6%22%20cy%3D%22281.7%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.55%22/%3E%3Ccircle%20cx%3D%22333.7%22%20cy%3D%22142.9%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.68%22/%3E%3Ccircle%20cx%3D%2285.0%22%20cy%3D%22479.7%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.45%22/%3E%3Ccircle%20cx%3D%2247.2%22%20cy%3D%22447.0%22%20r%3D%220.8%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%22326.1%22%20cy%3D%22485.2%22%20r%3D%220.9%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%22322.9%22%20cy%3D%2272.2%22%20r%3D%221.4%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.51%22/%3E%3Cpath%20d%3D%22M40%2090%20L78%2070%20L112%2084%20L150%2060%20L176%2092%20L150%20120%22%20fill%3D%22none%22%20stroke%3D%22%23D2A35A%22%20stroke-width%3D%220.8%22%20opacity%3D%220.5%22/%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2290%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2270%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22112%22%20cy%3D%2284%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2260%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22176%22%20cy%3D%2292%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22120%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Cpath%20d%3D%22M270%20160%20L300%20140%20L334%20150%20L352%20182%20L322%20205%22%20fill%3D%22none%22%20stroke%3D%22%23D2A35A%22%20stroke-width%3D%220.8%22%20opacity%3D%220.5%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%22160%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22140%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22334%22%20cy%3D%22150%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22352%22%20cy%3D%22182%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22322%22%20cy%3D%22205%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Cpath%20d%3D%22M60%20560%20L92%20600%20L130%20590%20L160%20630%20L205%20618%22%20fill%3D%22none%22%20stroke%3D%22%23D2A35A%22%20stroke-width%3D%220.8%22%20opacity%3D%220.5%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%22560%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%2292%22%20cy%3D%22600%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22590%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%22630%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22205%22%20cy%3D%22618%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Cpath%20d%3D%22M290%20690%20L318%20660%20L350%20676%20L330%20720%22%20fill%3D%22none%22%20stroke%3D%22%23D2A35A%22%20stroke-width%3D%220.8%22%20opacity%3D%220.5%22/%3E%3Ccircle%20cx%3D%22290%22%20cy%3D%22690%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%22660%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22676%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%22720%22%20r%3D%222.2%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.9%22/%3E%3Cpath%20d%3D%22M346%2064%20a%2022%2022%200%201%200%2014%2038%20a%2017%2017%200%201%201%20-14%20-38%20Z%22%20fill%3D%22%23D2A35A%22%20opacity%3D%220.35%22/%3E%3C/svg%3E');
+  --corner-tl: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20transform%3D%22translate%280%200%29%20scale%281%201%29%22%3E%3Cpath%20d%3D%22M4%2036%20V12%20Q4%204%2012%204%20H36%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.2%22/%3E%3Cpath%20d%3D%22M9%2030%20V15%20Q9%209%2015%209%20H30%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%22.7%22%20opacity%3D%22.7%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.8%22%20fill%3D%22%23B4873A%22/%3E%3C/g%3E%3C/svg%3E');
+  --corner-tr: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20transform%3D%22translate%2840%200%29%20scale%28-1%201%29%22%3E%3Cpath%20d%3D%22M4%2036%20V12%20Q4%204%2012%204%20H36%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.2%22/%3E%3Cpath%20d%3D%22M9%2030%20V15%20Q9%209%2015%209%20H30%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%22.7%22%20opacity%3D%22.7%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.8%22%20fill%3D%22%23B4873A%22/%3E%3C/g%3E%3C/svg%3E');
+  --corner-bl: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20transform%3D%22translate%280%2040%29%20scale%281%20-1%29%22%3E%3Cpath%20d%3D%22M4%2036%20V12%20Q4%204%2012%204%20H36%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.2%22/%3E%3Cpath%20d%3D%22M9%2030%20V15%20Q9%209%2015%209%20H30%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%22.7%22%20opacity%3D%22.7%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.8%22%20fill%3D%22%23B4873A%22/%3E%3C/g%3E%3C/svg%3E');
+  --corner-br: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cg%20transform%3D%22translate%2840%2040%29%20scale%28-1%20-1%29%22%3E%3Cpath%20d%3D%22M4%2036%20V12%20Q4%204%2012%204%20H36%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.2%22/%3E%3Cpath%20d%3D%22M9%2030%20V15%20Q9%209%2015%209%20H30%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%22.7%22%20opacity%3D%22.7%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.8%22%20fill%3D%22%23B4873A%22/%3E%3C/g%3E%3C/svg%3E');
+  --flourish: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22120%22%20height%3D%2214%22%20viewBox%3D%220%200%20120%2014%22%3E%3Cpath%20d%3D%22M2%207%20H44%20M76%207%20H118%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221%22%20opacity%3D%22.8%22/%3E%3Cpath%20d%3D%22M46%207%20q7%20-7%2014%200%20q7%207%2014%200%22%20fill%3D%22none%22%20stroke%3D%22%23B4873A%22%20stroke-width%3D%221.2%22/%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%227%22%20r%3D%222%22%20fill%3D%22%23B4873A%22/%3E%3C/svg%3E');
+  --seal: polygon(100.9% 50.0%, 97.5% 60.8%, 94.2% 71.3%, 91.5% 83.1%, 80.4% 88.1%, 71.7% 95.0%, 60.4% 95.5%, 50.0% 96.8%, 38.9% 98.8%, 27.9% 96.0%, 18.9% 88.9%, 15.4% 77.6%, 5.1% 71.6%, 5.9% 60.1%, 2.7% 50.0%, 0.7% 38.8%, 10.7% 31.1%, 14.8% 21.9%, 19.8% 12.1%, 28.3% 5.0%, 39.1% 2.4%, 50.0% 2.4%, 60.9% 2.2%, 69.3% 9.9%, 81.7% 10.3%, 84.7% 22.3%, 89.2% 31.1%, 101.3% 38.3%);
+}
+
 </style>
 </head>
 <body>
+<div id="bgdeco" aria-hidden="true"></div>
 <div id="app">
   <header class="top" id="top"></header>
   <main id="view"></main>
@@ -294,6 +411,10 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
     <button class="tab" data-act="tab" data-tab="profile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20.5c1.4-4 4.4-6 8-6s6.6 2 8 6"/></svg>Profil</button>
   </nav>
 </div>
+<div class="lt lt-a" aria-hidden="true"></div>
+<div class="lt lt-b" aria-hidden="true"><div class="win"><i></i><i></i><i></i><i></i></div></div>
+<div class="lt lt-c" aria-hidden="true"></div>
+<div class="lt lt-d" aria-hidden="true" id="embers"></div>
 <div id="sheets"></div>
 <div id="sys" aria-live="polite"></div>
 <input type="file" id="file-photo" accept="image/*" class="hidden">
@@ -301,7 +422,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spac
 <script>
 /*CORE-START*/
 var BL = {};
-BL.APP_VERSION = '0.2.1';
+BL.APP_VERSION = '0.4.0';
 /* Built-in Google Books key (browser key, restricted to the app address). Empty = no key. */
 BL.GOOGLE_KEY = '';
 BL.SCHEMA = 1;
@@ -382,6 +503,227 @@ BL.olLang = function (v) {
   return BL.OL_LANGS[s] || (s.length === 2 ? s : '');
 };
 
+/* ---------- Atmosphere ---------- */
+/* Small seeded generator (LCG), so the paper texture looks the same on every start. */
+BL.rng = function (seed) {
+  var a = (seed >>> 0) || 1;
+  return function () { a = (a * 1664525 + 1013904223) % 4294967296; return a / 4294967296; };
+};
+/* Tileable paper grain: size x size values 0..1, fine fibres plus soft clouds. */
+BL.paperNoise = function (size, seed) {
+  var rnd = BL.rng(seed), out = [], i, x, y;
+  for (i = 0; i < size * size; i++) out.push(0);
+  var octaves = [[1, 0.34], [2, 0.26], [4, 0.18], [8, 0.13], [16, 0.09]];
+  for (var o = 0; o < octaves.length; o++) {
+    var cell = octaves[o][0], w = octaves[o][1], n = Math.max(1, Math.round(size / cell)), grid = [];
+    for (i = 0; i < n * n; i++) grid.push(rnd());
+    for (y = 0; y < size; y++) {
+      var gy = y / cell, y0 = Math.floor(gy) % n, y1 = (y0 + 1) % n, fy = gy - Math.floor(gy);
+      fy = fy * fy * (3 - 2 * fy);
+      for (x = 0; x < size; x++) {
+        var gx = x / cell, x0 = Math.floor(gx) % n, x1 = (x0 + 1) % n, fx = gx - Math.floor(gx);
+        fx = fx * fx * (3 - 2 * fx);
+        var top = grid[y0 * n + x0] * (1 - fx) + grid[y0 * n + x1] * fx;
+        var bot = grid[y1 * n + x0] * (1 - fx) + grid[y1 * n + x1] * fx;
+        out[y * size + x] += (top * (1 - fy) + bot * fy) * w;
+      }
+    }
+  }
+  for (i = 0; i < out.length; i++) out[i] = Math.max(0, Math.min(1, (out[i] - 0.5) * 2.2 + 0.5));
+  return out;
+};
+/* Light mood by hour: morning window light, neutral day, evening lamp. */
+BL.lightPhase = function (hour) {
+  if (hour >= 6 && hour < 11) return 'morning';
+  if (hour >= 11 && hour < 17) return 'day';
+  return 'evening';
+};
+
+/* ---------- Install guide: device, browser, steps ---------- */
+/* o: { ua, maxTouchPoints, standalone } -> { os, browser, inApp, standalone, tablet, iosMajor, safariMajor } */
+BL.detectEnv = function (o) {
+  o = o || {};
+  var ua = String(o.ua || ''), m;
+  var env = { os: 'other', browser: 'other', inApp: '', standalone: !!o.standalone, tablet: false, iosMajor: 0, safariMajor: 0 };
+  var iPadAsMac = /Macintosh/.test(ua) && (o.maxTouchPoints || 0) > 1;
+  if (/iPhone|iPad|iPod/.test(ua) || iPadAsMac) { env.os = 'ios'; env.tablet = /iPad/.test(ua) || iPadAsMac; }
+  else if (/Android/.test(ua)) env.os = 'android';
+  else if (/CrOS/.test(ua)) env.os = 'chromeos';
+  else if (/Macintosh|Mac OS X/.test(ua)) env.os = 'mac';
+  else if (/Windows/.test(ua)) env.os = 'windows';
+  else if (/Linux/.test(ua)) env.os = 'linux';
+  var apps = [[/Instagram/, 'Instagram'], [/FBAN|FBAV|FB_IAB|FBIOS|FB4A/, 'Facebook'], [/LinkedInApp/, 'LinkedIn'],
+    [/musical_ly|BytedanceWebview|TikTok/i, 'TikTok'], [/Snapchat/, 'Snapchat'], [/Pinterest/, 'Pinterest'], [/Twitter/, 'X'],
+    [/ Line\//, 'LINE'], [/MicroMessenger/, 'WeChat'], [/WhatsApp/, 'WhatsApp'], [/Telegram/, 'Telegram'], [/ GSA\//, 'Google-App']];
+  for (var i = 0; i < apps.length; i++) if (apps[i][0].test(ua)) { env.inApp = apps[i][1]; break; }
+  if (env.os === 'ios') {
+    if (/CriOS/.test(ua)) env.browser = 'chrome';
+    else if (/FxiOS/.test(ua)) env.browser = 'firefox';
+    else if (/EdgiOS/.test(ua)) env.browser = 'edge';
+    else if (/OPiOS|OPT\//.test(ua)) env.browser = 'opera';
+    else if (/Safari\//.test(ua)) env.browser = 'safari';
+    /* Without the Safari token it is an app's own web view (outside the installed app) */
+    if (!env.inApp && !env.standalone && !/Safari\//.test(ua)) env.inApp = 'App';
+    m = /Version\/(\d+)/.exec(ua);
+    var osm = /OS (\d+)_/.exec(ua);
+    /* Safari 26 freezes the OS number in the user agent; its Version token follows the iOS major */
+    env.safariMajor = m ? +m[1] : 0;
+    env.iosMajor = env.browser === 'safari' && m ? +m[1] : (osm ? +osm[1] : 0);
+  } else if (env.os === 'android') {
+    if (/SamsungBrowser/.test(ua)) env.browser = 'samsung';
+    else if (/EdgA/.test(ua)) env.browser = 'edge';
+    else if (/Firefox/.test(ua)) env.browser = 'firefox';
+    else if (/OPR\//.test(ua)) env.browser = 'opera';
+    else if (/Chrome\//.test(ua)) env.browser = 'chrome';
+    if (!env.inApp && /; wv\)/.test(ua)) env.inApp = 'App';
+  } else {
+    if (/Edg\//.test(ua)) env.browser = 'edge';
+    else if (/OPR\//.test(ua)) env.browser = 'opera';
+    else if (/Firefox\//.test(ua)) env.browser = 'firefox';
+    else if (/Chrome\/|Chromium\//.test(ua)) env.browser = 'chrome';
+    else if (/Safari\//.test(ua) && env.os === 'mac') { env.browser = 'safari'; m = /Version\/(\d+)/.exec(ua); env.safariMajor = m ? +m[1] : 0; }
+  }
+  return env;
+};
+
+BL.OS_NAMES = { ios: 'iPhone', android: 'Android', mac: 'Mac', windows: 'Windows', linux: 'Linux', chromeos: 'ChromeOS', other: 'Computer' };
+BL.BROWSER_NAMES = { safari: 'Safari', chrome: 'Chrome', firefox: 'Firefox', edge: 'Edge', samsung: 'Samsung Internet', opera: 'Opera', other: 'Browser' };
+BL.envLabel = function (env) {
+  if (env.inApp) return (env.inApp === 'App' ? 'Eingebauter Browser einer App' : env.inApp + '-Browser') + ' erkannt';
+  var dev = env.os === 'ios' ? (env.tablet ? 'iPad' : 'iPhone') : (BL.OS_NAMES[env.os] || 'Computer');
+  return dev + ' · ' + (BL.BROWSER_NAMES[env.browser] || 'Browser');
+};
+
+/* Steps per device and browser. kind: steps | prompt (real install button where the browser offers one) | none | inapp.
+   Menu names as on a German device; checked November 2026, sources in the roadmap. */
+BL.installGuide = function (env) {
+  var g = { kind: 'steps', steps: [], note: '', separateStorage: false, purgeNote: false, recommend: '', label: BL.envLabel(env) };
+  var S = function (icon, html) { g.steps.push([icon, html]); };
+  if (env.inApp) {
+    g.kind = 'inapp';
+    if (env.os === 'android') {
+      S('kebab', 'Tippe oben rechts auf <b>„⋮“</b>.');
+      S('ext', 'Wähle <b>„In Chrome öffnen“</b> bzw. <b>„Im Browser öffnen“</b> – der genaue Name hängt von der App ab.');
+      S('install', 'Im Browser zeigt dir BOOK.LOG dann die Schritte zum Installieren.');
+    } else {
+      S('dots', 'Tippe oben rechts auf <b>„…“</b> (bei manchen Apps unten).');
+      S('ext', 'Wähle <b>„Im Browser öffnen“</b> bzw. <b>„In Safari öffnen“</b> – der genaue Name hängt von der App ab.');
+      S('share', 'In Safari zeigt dir BOOK.LOG dann die Schritte zum Installieren.');
+    }
+    g.note = 'Findest du nichts davon: Tippe auf „Link kopieren“ und füge den Link in ' + (env.os === 'android' ? 'Chrome' : 'Safari') + ' ein.';
+    return g;
+  }
+  if (env.os === 'ios') {
+    g.separateStorage = true;
+    if (env.browser === 'safari') {
+      g.purgeNote = true;
+      var v26 = env.iosMajor >= 26;
+      if (env.tablet) S('share', 'Tippe oben rechts neben der Adressleiste auf das <b>Teilen-Symbol</b>' + (v26 ? ' (oder auf <b>„…“</b> und dann <b>„Teilen“</b>)' : '') + '.');
+      else if (v26) { S('dots', 'Tippe unten neben der Adressleiste auf <b>„…“</b>. Siehst du direkt das Teilen-Symbol, tippe gleich darauf.'); S('share', 'Tippe auf <b>„Teilen“</b>.'); }
+      else S('share', 'Tippe in der Leiste unten auf das <b>Teilen-Symbol</b>.');
+      S('addsq', 'Scroll nach unten und wähle <b>„Zum Home-Bildschirm“</b>.');
+      if (v26) S('toggle', '<b>„Als Web-App öffnen“</b> eingeschaltet lassen und auf <b>„Hinzufügen“</b> tippen.');
+      else S('check', 'Tippe oben rechts auf <b>„Hinzufügen“</b>.');
+      g.note = 'Siehst du oben „Fertig“ statt einer Adressleiste, bist du in der Vorschau einer anderen App: Tippe unten rechts auf das Kompass-Symbol, um die Seite in Safari zu öffnen.';
+      return g;
+    }
+    if (env.iosMajor && env.iosMajor < 16) {
+      g.kind = 'none'; g.recommend = 'Auf deiner iOS-Version kann nur Safari Web-Apps auf den Home-Bildschirm legen. Öffne BOOK.LOG dafür in Safari.';
+      return g;
+    }
+    if (env.browser === 'chrome') S('share', 'Tippe oben rechts in der Adressleiste auf das <b>Teilen-Symbol</b>.');
+    else if (env.browser === 'firefox') S('share', 'Tippe in der Adressleiste auf das <b>Teilen-Symbol</b> (oder im Menü <b>≡</b> auf <b>„Teilen“</b>).');
+    else if (env.browser === 'edge') S('menu', 'Tippe unten auf das <b>Menü</b> (≡ bzw. „…“) und dann auf <b>„Teilen“</b>.');
+    else S('share', 'Öffne das <b>Teilen-Menü</b> deines Browsers.');
+    S('addsq', 'Scroll nach unten und wähle <b>„Zum Home-Bildschirm“</b>.');
+    S('check', 'Tippe auf <b>„Hinzufügen“</b>. Erscheint <b>„Als Web-App öffnen“</b>, lass es eingeschaltet.');
+    if (env.browser === 'other' || env.browser === 'opera') g.note = 'Klappt es in deinem Browser nicht, öffne BOOK.LOG in Safari.';
+    return g;
+  }
+  if (env.os === 'android') {
+    g.kind = env.browser === 'firefox' ? 'steps' : 'prompt';
+    if (env.browser === 'samsung') {
+      S('menu', 'Tippe unten rechts auf das <b>Menü ≡</b>.');
+      S('addsq', 'Tippe auf <b>„Seite hinzufügen zu“</b>.');
+      S('check', 'Wähle <b>„Startbildschirm“</b> (auf neueren Geräten „Home-Bildschirm“) und tippe auf <b>„Hinzufügen“</b>.');
+      g.note = 'Zeigt die Adressleiste ein Symbol mit Pfeil nach unten, geht es dort direkt mit einem Tipp.';
+    } else if (env.browser === 'firefox') {
+      S('kebab', 'Tippe auf <b>„⋮“</b> (je nach Einstellung oben oder unten).');
+      S('install', 'Wähle <b>„Installieren“</b> oder <b>„Zum Startbildschirm hinzufügen“</b>.');
+      S('check', 'Bestätige mit <b>„Hinzufügen“</b>.');
+    } else if (env.browser === 'edge') {
+      S('dots', 'Tippe unten auf <b>„…“</b>.');
+      S('addsq', 'Wähle <b>„Zum Telefon hinzufügen“</b> bzw. <b>„Zum Startbildschirm hinzufügen“</b>.');
+      S('install', 'Tippe auf <b>„Installieren“</b> bzw. <b>„Hinzufügen“</b>.');
+    } else {
+      S('kebab', 'Tippe oben rechts auf <b>„⋮“</b>.');
+      S('addsq', 'Wähle <b>„Zum Startbildschirm hinzufügen“</b> (oder <b>„App installieren“</b>).');
+      S('install', 'Tippe auf <b>„Installieren“</b>.');
+    }
+    return g;
+  }
+  /* Computer */
+  if (env.browser === 'safari') {
+    g.separateStorage = true;
+    if (env.safariMajor && env.safariMajor < 17) {
+      g.kind = 'none'; g.recommend = 'Safari kann Web-Apps erst ab macOS Sonoma (Safari 17) ins Dock legen. Aktualisiere macOS oder öffne BOOK.LOG in Chrome oder Edge.';
+      return g;
+    }
+    S('dock', 'Klicke in der Menüleiste auf <b>„Ablage“</b> und dann auf <b>„Zum Dock hinzufügen …“</b>.');
+    S('check', 'Klicke auf <b>„Hinzufügen“</b>. BOOK.LOG liegt dann im Dock und im Ordner „Programme“.');
+    return g;
+  }
+  if (env.browser === 'firefox') {
+    g.kind = 'none';
+    if (env.os === 'windows') {
+      g.recommend = 'Firefox kann Web-Apps nicht richtig installieren. Unter Windows kannst du BOOK.LOG aber an die Taskleiste anheften: Klicke dazu rechts in der Adressleiste auf das Anheften-Symbol (ab Firefox 143). Für eine echte App öffne BOOK.LOG in Chrome oder Edge.';
+    } else {
+      g.recommend = 'Firefox kann Web-Apps auf diesem System nicht installieren. Für die App-Fassung öffne BOOK.LOG in ' + (env.os === 'mac' ? 'Chrome, Edge oder Safari' : 'Chrome oder Edge') + '. Im Firefox-Tab funktioniert BOOK.LOG trotzdem, auch offline.';
+    }
+    return g;
+  }
+  g.kind = 'prompt';
+  if (env.browser === 'edge') {
+    S('dots', 'Klicke oben rechts auf <b>„…“</b> (Einstellungen und mehr).');
+    S('install', 'Wähle <b>„Apps“</b> und dann <b>„Diese Website als App installieren“</b>.');
+    S('check', 'Bestätige mit <b>„Installieren“</b>.');
+  } else {
+    S('monitor', 'Klicke rechts in der Adressleiste auf das <b>Installieren-Symbol</b> (Bildschirm mit Pfeil).');
+    S('kebab', 'Oder: Menü <b>„⋮“</b> → <b>„Speichern und teilen“</b> → <b>„BOOK.LOG installieren …“</b> bzw. <b>„Seite als App installieren“</b>.');
+    S('check', 'Bestätige mit <b>„Installieren“</b>.');
+    if (env.browser !== 'chrome') g.note = 'Die Namen können in deinem Browser etwas anders lauten.';
+  }
+  return g;
+};
+
+/* All combinations for the overview in Help */
+BL.INSTALL_LIST = [
+  ['iPhone · Safari (iOS 26)', { os: 'ios', browser: 'safari', iosMajor: 26 }],
+  ['iPhone · Safari (bis iOS 18)', { os: 'ios', browser: 'safari', iosMajor: 18 }],
+  ['iPad · Safari', { os: 'ios', browser: 'safari', iosMajor: 26, tablet: true }],
+  ['iPhone und iPad · Chrome', { os: 'ios', browser: 'chrome', iosMajor: 26 }],
+  ['iPhone und iPad · Firefox', { os: 'ios', browser: 'firefox', iosMajor: 26 }],
+  ['iPhone und iPad · Edge', { os: 'ios', browser: 'edge', iosMajor: 26 }],
+  ['Android · Chrome', { os: 'android', browser: 'chrome' }],
+  ['Android · Samsung Internet', { os: 'android', browser: 'samsung' }],
+  ['Android · Firefox', { os: 'android', browser: 'firefox' }],
+  ['Android · Edge', { os: 'android', browser: 'edge' }],
+  ['Computer · Chrome', { os: 'windows', browser: 'chrome' }],
+  ['Computer · Edge', { os: 'windows', browser: 'edge' }],
+  ['Mac · Safari', { os: 'mac', browser: 'safari', safariMajor: 26 }],
+  ['Computer · Firefox', { os: 'mac', browser: 'firefox' }],
+  ['In einer App (Instagram, Facebook …)', { os: 'ios', browser: 'other', inApp: 'App' }]
+];
+BL.INSTALL_SNOOZE_DAYS = 7;
+/* Is the hint due on this device? prefs from the device's own storage: { snoozeUntil, never, installed } */
+BL.installDue = function (env, prefs, now) {
+  prefs = prefs || {};
+  if (env.standalone) return false;
+  if (env.inApp) return !(prefs.inAppUntil > now);
+  if (prefs.never || prefs.installed) return false;
+  return !(prefs.snoozeUntil > now);
+};
+
 /* ---------- Default state and migration ---------- */
 BL.def = function () {
   return {
@@ -390,7 +732,7 @@ BL.def = function () {
     books: {}, logs: {}, notes: {}, achievements: {}, authors: {}, series: {},
     settings: {
       theme: 'auto', haptics: false, shelfView: 'spines', sort: 'author', filter: 'all',
-      lastBackupAt: 0, backupSnoozeUntil: 0, seenVersion: '', googleKey: '', searchLang: 'all', customOrderSet: false
+      lastBackupAt: 0, backupSnoozeUntil: 0, seenVersion: '', googleKey: '', searchLang: 'all', customOrderSet: false, ambient: true, seriesHeight: false
     },
     meta: { deviceId: '' }
   };
@@ -853,6 +1195,27 @@ BL.hash = function (str) {
   return h >>> 0;
 };
 BL.spineHeightFactor = function (id) { return 0.86 + (BL.hash(id) % 15) / 100; };
+/* With the option on, every book of a series takes the height of the series' first book:
+   Band 1 if it is on the shelf, else the lowest band, else the book added first. Different series stay different. */
+BL.seriesAnchors = function (books) {
+  var best = {};
+  for (var i = 0; i < books.length; i++) {
+    var b = books[i], se = String(b.series || '').replace(/^\s+|\s+$/g, '');
+    if (!se || b.deleted) continue;
+    var k = BL.normName(se), no = parseFloat(String(b.seriesNo || '').replace(',', '.'));
+    var rank = [isFinite(no) && no > 0 ? no : Infinity, b.createdAt || 0];
+    var cur = best[k];
+    if (!cur || rank[0] < cur.rank[0] || (rank[0] === cur.rank[0] && rank[1] < cur.rank[1])) best[k] = { id: b.id, rank: rank };
+  }
+  var out = {};
+  for (var key in best) if (best.hasOwnProperty(key)) out[key] = best[key].id;
+  return out;
+};
+BL.heightKey = function (b, sameSeries, anchors) {
+  var se = String((b && b.series) || '').replace(/^\s+|\s+$/g, '');
+  if (sameSeries && se && anchors) { var a = anchors[BL.normName(se)]; if (a) return a; }
+  return b.id || b.title || '';
+};
 BL.SPINE_COLORS = ['#6B4E71', '#3E5C76', '#8E3B36', '#2F3E46', '#7D6B3A', '#44546A', '#A0522D', '#2E4A3F', '#7A3E48', '#5B7F95', '#5A7454', '#B4873A'];
 BL.spineColor = function (b) {
   if (b.spineColor) return b.spineColor;
@@ -1183,6 +1546,21 @@ BL.dominantColor = function (data, w, h) {
 
 /* ---------- News ---------- */
 BL.NEWS = [
+  { v: '0.4.0', title: 'Als App installieren', items: [
+    'Im Browser zeigt BOOK.LOG beim ersten Besuch, wie du es als App installierst \u2013 passend zu Ger\u00e4t und Browser',
+    'Bei Chrome und Edge gibt es daf\u00fcr einen echten Installieren-Knopf',
+    'In eingebauten Browsern wie Instagram oder Facebook kommt der Hinweis, die Seite im richtigen Browser zu \u00f6ffnen',
+    'Die Anleitung f\u00fcr alle Ger\u00e4te findest du jederzeit unter Einstellungen \u2192 Hilfe',
+    '\u201eReihen gleich hoch\u201c richtet sich jetzt nach dem ersten Band, verschiedene Reihen bleiben unterschiedlich hoch'
+  ] },
+  { v: '0.3.0', title: 'Papier, Licht und Details', items: [
+    'Feine Papierstruktur und blasse Ranken, im dunklen Modus Sternbilder',
+    'Das Licht folgt der Uhrzeit: morgens Fensterlicht, abends Lampenschein, im dunklen Modus Kaminglut',
+    'Lichtstimmung l\u00e4sst sich in den Einstellungen ausschalten',
+    'Leseb\u00e4ndchen an B\u00fcchern, die du gerade liest',
+    'Dein Level als Wachssiegel, Erfolge als Stempel',
+    'Neu in den Einstellungen: B\u00fccher einer Reihe auf Wunsch so hoch wie ihr erster Band'
+  ] },
   { v: '0.2.1', title: 'Neue Sortierungen', items: [
     'Das Regal l\u00e4sst sich jetzt auch alphabetisch nach Titel sortieren',
     'Nach Seitenzahl auf- oder absteigend: d\u00fcnne oder dicke B\u00fccher zuerst, B\u00fccher ohne Seitenzahl stehen am Ende'
@@ -1230,6 +1608,20 @@ BL.NEWS = [
   var S = null;
   var VERSION = BL.APP_VERSION;
   var UI = { tab: 'shelf', sheets: [], urls: {}, results: null, suppressClickUntil: 0, toastTimer: 0 };
+  /* The browser's own install offer (Chrome, Edge, Samsung): kept for our Installieren button */
+  window.addEventListener('beforeinstallprompt', function (e) {
+    try { e.preventDefault(); } catch (x) { }
+    UI.bip = e;
+    var sp = UI.sheets && (findSheet('install') || findSheet('install-help'));
+    if (sp) renderSheet(sp);
+  });
+  window.addEventListener('appinstalled', function () {
+    var p = installPrefs(); p.installed = true; saveInstallPrefs(p);
+    UI.bip = null;
+    var sp = findSheet('install');
+    if (sp) { sp.handled = true; closeSheet(); }
+    toast('BOOK.LOG ist installiert');
+  });
 
   /* ================= Helpers ================= */
   function $(sel, root) { return (root || document).querySelector(sel); }
@@ -1285,7 +1677,20 @@ BL.NEWS = [
     refresh: '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4.2h-4.2"/>',
     down: '<path d="M6 9.5l6 6 6-6"/>',
     upload: '<path d="M12 15.5V4M7.5 8.5L12 4l4.5 4.5M4.5 15v5h15v-5"/>',
-    download: '<path d="M12 4v11.5M7.5 11L12 15.5 16.5 11M4.5 15v5h15v-5"/>'
+    download: '<path d="M12 4v11.5M7.5 11L12 15.5 16.5 11M4.5 15v5h15v-5"/>',
+    dots: '<circle cx="5" cy="12" r="1.4" class="fillc"/><circle cx="12" cy="12" r="1.4" class="fillc"/><circle cx="19" cy="12" r="1.4" class="fillc"/>',
+    kebab: '<circle cx="12" cy="5" r="1.4" class="fillc"/><circle cx="12" cy="12" r="1.4" class="fillc"/><circle cx="12" cy="19" r="1.4" class="fillc"/>',
+    menu: '<path d="M4.5 7h15M4.5 12h15M4.5 17h15"/>',
+    share: '<path d="M12 3.5v11M8 7.5l4-4 4 4M8 10.5H6.5A1.5 1.5 0 0 0 5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7a1.5 1.5 0 0 0-1.5-1.5H16"/>',
+    addsq: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/>',
+    toggle: '<rect x="2.5" y="7" width="19" height="10" rx="5"/><circle cx="16.5" cy="12" r="2.6" class="fillc"/>',
+    install: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/>',
+    monitor: '<rect x="3" y="4" width="18" height="12.5" rx="2"/><path d="M9 20.5h6M12 16.5v4M12 7.5v5.5M9.5 10.5L12 13l2.5-2.5"/>',
+    ext: '<path d="M14 4.5h5.5V10M19.5 4.5L11 13M17 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 18.5v-10A1.5 1.5 0 0 1 5.5 7H10"/>',
+    dock: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18M7.5 17.5h2M11 17.5h2M14.5 17.5h2"/>',
+    copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
+    help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.6 2.3c-.8.4-1.2 1-1.2 1.9v.5"/><circle cx="12" cy="17" r=".9" class="fillc"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>'
   };
   function icon(name, cls) {
     return '<svg class="ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
@@ -1729,6 +2134,7 @@ BL.NEWS = [
     }
     var avail = Math.max(200, inner - 12);
     var items = [];
+    var anchors = set.seriesHeight ? BL.seriesAnchors(liveBooks()) : null;
     for (var g = 0; g < groups.length; g++) {
       if (groups[g].label) {
         var dl = dividerLayout(groups[g].label, groups[g].fav);
@@ -1745,7 +2151,7 @@ BL.NEWS = [
           var fw = Math.round(fh * BL.clamp(b.coverAspect || 0.66, 0.45, 0.85));
           items.push({ w: fw, html: faceHtml(b, fw, fh, set.shelfView === 'covers') });
         } else {
-          var sw = BL.spineWidth(b.pages), sh = Math.round(158 * BL.spineHeightFactor(b.id));
+          var sw = BL.spineWidth(b.pages), sh = Math.round(158 * BL.spineHeightFactor(BL.heightKey(b, set.seriesHeight, anchors)));
           items.push({ w: sw, html: spineHtml(b, sw, sh) });
         }
       }
@@ -1780,7 +2186,7 @@ BL.NEWS = [
     return 'S. ' + b.page + ' von ' + r.last + (noPct ? '' : ' · ' + pct + ' %');
   }
   function readCard(b) {
-    return '<div class="card read-card"><div class="thumb" data-act="book" data-id="' + esc(b.id) + '">' + coverHtml(b, 64) + '</div><div class="info">' +
+    return '<div class="card read-card' + (b.status === 'reading' ? ' rib' : '') + '"><div class="thumb" data-act="book" data-id="' + esc(b.id) + '">' + coverHtml(b, 64) + '</div><div class="info">' +
       '<h3 data-act="book" data-id="' + esc(b.id) + '">' + esc(b.title) + '</h3><div class="small muted">' + esc(authorsText(b)) + '</div>' +
       '<div class="bar" style="margin-top:6px"><i style="width:' + BL.percent(b) + '%"></i></div><div class="small muted">' + esc(progressText(b)) + '</div>' +
       '<div class="row-gap" style="margin-top:8px"><button class="btn small primary" data-act="page" data-id="' + esc(b.id) + '">Seite eintragen</button>' +
@@ -1838,7 +2244,7 @@ BL.NEWS = [
   var ACH_ICON = { first_page: 'open', finished_1: 'check', finished_10: 'book', first_note: 'note', quotes_25: 'quote', oracle: 'eye', big_book: 'book', pages_1000: 'stack', pages_5000: 'stack', pages_10000: 'stack', shelf_25: 'shelf', bilingual: 'globe', weeks_12: 'cal' };
   function renderProfile() {
     var xp = BL.computeXp(S), li = BL.levelInfo(xp.total), st = BL.stats(S), form = S.profile.form;
-    var html = '<div class="hero"><div class="lvl">' + li.level + '</div><div class="title">' + esc(BL.titleFor(li.level, form)) + '</div>' +
+    var html = '<div class="hero"><div class="seal"><div class="lvl">' + li.level + '</div></div><div class="title">' + esc(BL.titleFor(li.level, form)) + '</div>' +
       '<div class="name">' + esc(S.profile.name || (form === 'm' ? 'Leser' : 'Leserin')) + ' · ' + fmtNum(xp.total) + ' XP</div>' +
       '<div class="bar xp-bar" style="margin:14px 8px 6px"><i style="width:' + Math.round(li.into / li.need * 100) + '%"></i></div>' +
       '<div class="small muted">Noch ' + fmtNum(li.need - li.into) + ' XP bis Level ' + (li.level + 1) + '</div></div>';
@@ -1903,9 +2309,14 @@ BL.NEWS = [
   function closeSheets(n) {
     n = Math.min(n || 1, UI.sheets.length);
     if (!n) return;
-    var target = UI.sheets.length - n;
+    /* Remember which sheets go, so a sheet opened right after (e.g. the welcome) stays */
+    var victims = UI.sheets.slice(UI.sheets.length - n);
     try { history.go(-n); } catch (e) { }
-    setTimeout(function () { while (UI.sheets.length > target) popSheet(); }, 380);
+    setTimeout(function () {
+      var idx = -1;
+      for (var i = 0; i < victims.length; i++) { var k = UI.sheets.indexOf(victims[i]); if (k >= 0 && (idx < 0 || k < idx)) idx = k; }
+      if (idx >= 0) while (UI.sheets.length > idx) popSheet();
+    }, 380);
   }
   function closeSheet() { closeSheets(1); }
   window.addEventListener('popstate', function (e) {
@@ -2805,18 +3216,69 @@ BL.NEWS = [
       '<div class="small muted" style="margin-bottom:6px">Titel und Erfolge in der Form</div><div class="seg"><button class="' + (S.profile.form === 'm' ? 'on' : '') + '" data-act="s-form" data-v="m">Leser</button><button class="' + (S.profile.form !== 'm' ? 'on' : '') + '" data-act="s-form" data-v="w">Leserin</button></div>';
     h += '<h2 class="section-title">Darstellung</h2><div class="seg">';
     for (var i = 0; i < themes.length; i++) h += '<button class="' + (s.theme === themes[i][0] ? 'on' : '') + '" data-act="s-theme" data-v="' + themes[i][0] + '">' + themes[i][1] + '</button>';
-    h += '</div><div class="toggle" style="margin-top:12px"><span>Vibration<br><span class="small muted">Nur auf Android-Geräten</span></span><button class="switch' + (s.haptics ? ' on' : '') + '" data-act="s-haptics" aria-label="Vibration"></button></div>';
+    h += '</div><div class="toggle" style="margin-top:12px"><span>Vibration<br><span class="small muted">Nur auf Android-Geräten</span></span><button class="switch' + (s.haptics ? ' on' : '') + '" data-act="s-haptics" aria-label="Vibration"></button></div>' +
+      '<div class="toggle" style="margin-top:12px"><span>Lichtstimmung<br><span class="small muted">Morgens Fensterlicht, abends Lampenschein, im dunklen Modus Kaminglut</span></span><button class="switch' + (s.ambient !== false ? ' on' : '') + '" data-act="s-ambient" aria-label="Lichtstimmung"></button></div>' +
+      '<div class="toggle" style="margin-top:12px"><span>Reihen gleich hoch<br><span class="small muted">Alle Bände einer Reihe so hoch wie ihr erster Band</span></span><button class="switch' + (s.seriesHeight ? ' on' : '') + '" data-act="s-serieshigh" aria-label="Reihen gleich hoch"></button></div>';
     h += '<h2 class="section-title">Buchsuche</h2><div class="field"><label for="s-key">' + (BL.GOOGLE_KEY ? 'Eigener Google-Books-Schlüssel (optional)' : 'Google-Books-Schlüssel') + '</label><input id="s-key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(s.googleKey) + '" data-change="s-key" placeholder="' + (BL.GOOGLE_KEY ? 'Leer lassen' : 'AIza…') + '"></div>' +
-      '<p class="small muted" style="margin-top:-6px">' + (BL.GOOGLE_KEY ? 'BOOK.LOG bringt einen Schlüssel mit, du musst nichts eintragen. Ein eigener ersetzt ihn nur für dieses Gerät.' : 'Ohne eigenen Schlüssel ist das Google-Kontingent sehr klein. Open Library funktioniert ohne Schlüssel.') + '</p><button class="btn small" data-act="s-keytest">Schlüssel testen</button><div id="s-keyres" class="small muted" style="margin-top:6px"></div>';
+      '<p class="small muted" style="margin-top:-6px">' + (BL.GOOGLE_KEY ? 'BOOK.LOG bringt einen Schlüssel mit, du musst nichts eintragen. Ein eigener ersetzt ihn nur für dieses Gerät.' : 'Optional. Ohne Schlüssel nutzt BOOK.LOG ein kleines gemeinsames Google-Kontingent und sucht bei Bedarf bei Open Library weiter.') + '</p><button class="btn small" data-act="s-keytest">Schlüssel testen</button><div id="s-keyres" class="small muted" style="margin-top:6px"></div>';
+    var envNow = currentEnv();
+    h += '<h2 class="section-title">Hilfe</h2><button class="row-link" data-act="install-help">' + icon(envNow.os === 'android' || envNow.os === 'ios' ? 'install' : 'monitor') +
+      '<span class="grow"><b>Als App installieren</b><span class="small muted">' + (envNow.standalone ? 'Läuft bereits als App ✓' : 'Anleitung für dieses Gerät: ' + esc(BL.envLabel(envNow))) + '</span></span>' + icon('chev') + '</button>';
     h += '<h2 class="section-title">Daten</h2><p class="small muted">Alles liegt nur auf diesem Gerät. Letztes Backup: ' + (s.lastBackupAt ? BL.fmtDate(s.lastBackupAt) : 'noch keins') + '</p>' +
       '<div class="row-gap"><button class="btn" data-act="backup">' + icon('download') + 'Backup sichern</button><button class="btn" data-act="restore">' + icon('upload') + 'Backup einspielen</button></div>';
     h += '<h2 class="section-title">Über</h2><p class="small muted">BOOK.LOG ' + VERSION + ' · Testversion</p><button class="btn small" data-act="news">Neuigkeiten anzeigen</button>';
     h += '<h2 class="section-title">Zurücksetzen</h2><button class="btn danger" data-act="wipe">' + icon('trash') + 'Alle Daten löschen</button>';
     return h;
   }
+  /* ================= Atmosphere ================= */
+  function isDark() {
+    var t = S.settings.theme;
+    if (t === 'dark') return true;
+    if (t !== 'auto') return false;
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { return false; }
+  }
+  /* Sets the light mood on <html>: off, morning, day, evening or fire (dark mode). */
+  function applyLight() {
+    var ph = S.settings.ambient === false ? 'off' : (isDark() ? 'fire' : BL.lightPhase(new Date(BL.now()).getHours()));
+    if (document.documentElement.getAttribute('data-light') !== ph) document.documentElement.setAttribute('data-light', ph);
+  }
+  /* Paper grain drawn once into a small tile, light and dark variant. */
+  function makeTextures() {
+    try {
+      var size = 256, n = BL.paperNoise(size, 7), c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      var ctx = c.getContext('2d');
+      if (!ctx || !ctx.createImageData) return;
+      var paint = function (r, g, b, amax) {
+        var img = ctx.createImageData(size, size), d = img.data;
+        for (var i = 0; i < n.length; i++) { d[i * 4] = r; d[i * 4 + 1] = g; d[i * 4 + 2] = b; d[i * 4 + 3] = Math.round(amax * n[i]); }
+        ctx.putImageData(img, 0, 0);
+        return 'url(' + c.toDataURL('image/png') + ')';
+      };
+      var root = document.documentElement.style;
+      root.setProperty('--tex-l', paint(90, 64, 38, 34));
+      root.setProperty('--tex-d', paint(255, 236, 210, 14));
+    } catch (e) { }
+  }
+  function makeEmbers() {
+    var box = $('#embers');
+    if (!box || box.childNodes.length) return;
+    var rnd = BL.rng(11), h = '';
+    for (var i = 0; i < 16; i++) {
+      var size = 2 + Math.round(rnd() * 4) / 2, dur = 9 + rnd() * 7;
+      h += '<i class="ember" style="left:' + (3 + rnd() * 94).toFixed(1) + '%;bottom:' + Math.round(rnd() * 34) + 'vh;width:' + size + 'px;height:' + size + 'px;' +
+        'animation-name:rise' + (1 + (i % 3)) + ';animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (rnd() * dur).toFixed(1) + 's"></i>';
+    }
+    box.innerHTML = h;
+  }
+  function onScrollTop() {
+    var solid = (window.pageYOffset || document.documentElement.scrollTop || 0) > 4;
+    if (solid !== UI.topSolid) { UI.topSolid = solid; var t = $('#top'); if (t) t.className = 'top' + (solid ? ' solid' : ''); }
+  }
   function applyTheme() {
     var t = S.settings.theme;
     document.documentElement.setAttribute('data-theme', t);
+    applyLight();
     var metas = $all('meta[name="theme-color"]');
     metas.forEach(function (m) {
       var media = m.getAttribute('data-media') || m.getAttribute('media');
@@ -2909,6 +3371,112 @@ BL.NEWS = [
       },
       foot: function () { return '<button class="btn primary block" data-act="w-start">Los geht\u2019s</button>'; }
     });
+  }
+
+  /* ================= Install as app ================= */
+  /* Device-only memory (not in the backup: it says nothing about other devices) */
+  var INSTALL_KEY = 'booklog_install';
+  function installPrefs() { try { return JSON.parse(localStorage.getItem(INSTALL_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function saveInstallPrefs(p) { try { localStorage.setItem(INSTALL_KEY, JSON.stringify(p)); } catch (e) { } }
+  function isStandalone() {
+    try {
+      if (navigator.standalone === true) return true;
+      if (window.matchMedia) {
+        var modes = ['standalone', 'fullscreen', 'minimal-ui', 'window-controls-overlay'];
+        for (var i = 0; i < modes.length; i++) if (window.matchMedia('(display-mode: ' + modes[i] + ')').matches) return true;
+      }
+    } catch (e) { }
+    return false;
+  }
+  function currentEnv() {
+    return BL.detectEnv({ ua: navigator.userAgent || '', maxTouchPoints: navigator.maxTouchPoints || 0, standalone: isStandalone() });
+  }
+  function stepsHtml(steps) {
+    return '<ol class="steps">' + steps.map(function (st, i) {
+      return '<li><span class="n">' + (i + 1) + '</span><span class="sic">' + icon(st[0]) + '</span><span class="st">' + st[1] + '</span></li>';
+    }).join('') + '</ol>';
+  }
+  /* The guide for one device and browser; steps are fixed texts from BL.installGuide (no user data) */
+  function guideHtml(env, g, here) {
+    var h = '';
+    if (here) h += '<div class="devhint">' + esc(g.label) + '</div>';
+    if (g.kind === 'inapp') {
+      h += '<p class="why">In diesem eingebauten Browser lässt sich BOOK.LOG nicht installieren, und deine Einträge können hier verloren gehen.</p>';
+    } else if (here && g.kind !== 'none') {
+      h += '<p class="why">Als App startet BOOK.LOG im Vollbild mit eigenem Icon und funktioniert auch offline.' +
+        (g.purgeNote ? ' Außerdem kann Safari Daten von Websites löschen, die du 7 Tage lang nicht öffnest – die App auf dem Home-Bildschirm nicht.' : '') + '</p>';
+    }
+    if (g.kind === 'none') {
+      h += '<div class="note warn">' + esc(g.recommend) + '</div>';
+      if (here) h += '<button class="btn block" style="margin-top:12px" data-act="inst-copy">' + icon('copy') + 'Link kopieren</button>';
+      return h;
+    }
+    if (here && g.kind === 'prompt' && UI.bip) {
+      h += '<div class="inst-card"><img src="./icon-192.png" alt=""><div><b class="serif">BOOK.LOG</b><div class="small muted">' + esc(location.host || 'xkoalu.github.io') + '</div></div></div>' +
+        '<button class="btn gold block" data-act="inst-go">' + icon(env.os === 'android' ? 'install' : 'monitor') + 'Installieren</button>' +
+        '<p class="small muted" style="margin:14px 0 4px">Oder von Hand:</p>';
+    }
+    h += stepsHtml(g.steps);
+    if (g.note) h += '<p class="small muted" style="margin:8px 0 0">' + esc(g.note) + '</p>';
+    if (here && g.separateStorage) {
+      var n = liveBooks().length;
+      h += '<div class="note"><b>Am besten jetzt, bevor du Bücher einträgst:</b> Die App bekommt einen eigenen Speicher, Einträge aus dem Browser wandern nicht mit.' +
+        (n ? ' Du hast hier schon ' + n + (n === 1 ? ' Buch' : ' Bücher') + ': Sichere vorher ein Backup und spiel es danach in der App ein (Einstellungen → Daten).' : '') + '</div>' +
+        (n ? '<button class="btn block" style="margin-top:10px" data-act="backup">' + icon('download') + 'Backup sichern</button>' : '');
+    }
+    return h;
+  }
+  /* First visit in the browser: a sheet with the steps for exactly this device */
+  function openInstall(after) {
+    var env = currentEnv(), g = BL.installGuide(env);
+    openSheet({
+      id: 'install', modal: true, cls: 'install-sheet', title: g.kind === 'inapp' ? 'Erst im Browser öffnen' : 'BOOK.LOG als App', env: env,
+      render: function (sp) { return guideHtml(sp.env, BL.installGuide(sp.env), true); },
+      foot: function (sp) {
+        if (sp.env.inApp) return '<div class="foot2"><button class="btn primary block" data-act="inst-copy">' + icon('copy') + 'Link kopieren</button><button class="textbtn" data-act="inst-stay">Trotzdem hier weiter</button></div>';
+        return '<div class="foot2"><button class="btn primary block" data-act="inst-later">Später</button><button class="textbtn" data-act="inst-never">Nicht mehr anzeigen</button></div>';
+      },
+      onClose: function (sp) {
+        if (!sp.handled) {
+          var p = installPrefs();
+          if (sp.env.inApp) p.inAppUntil = BL.now() + 30 * 60 * 1000; else p.snoozeUntil = BL.now() + BL.INSTALL_SNOOZE_DAYS * BL.DAY;
+          saveInstallPrefs(p);
+        }
+        if (after) setTimeout(after, 50);
+      }
+    });
+  }
+  /* Settings → Help: this device plus every other device and browser to unfold */
+  function openInstallHelp() {
+    openSheet({
+      id: 'install-help', title: 'Als App installieren', render: function () {
+        var env = currentEnv(), h = '';
+        if (env.standalone) h += '<div class="note ok">' + icon('check') + ' BOOK.LOG läuft auf diesem Gerät schon als App.</div>';
+        else h += '<h2 class="section-title" style="margin-top:0">Dieses Gerät</h2>' + guideHtml(env, BL.installGuide(env), true);
+        h += '<h2 class="section-title">Andere Geräte und Browser</h2>';
+        for (var i = 0; i < BL.INSTALL_LIST.length; i++) {
+          var e = BL.fill(BL.INSTALL_LIST[i][1], { os: 'other', browser: 'other', inApp: '', standalone: false, tablet: false, iosMajor: 0, safariMajor: 0 });
+          var g = BL.installGuide(e);
+          h += '<details class="acc"><summary>' + icon(e.os === 'android' || e.os === 'ios' ? 'install' : 'monitor') + '<span>' + esc(BL.INSTALL_LIST[i][0]) + '</span>' + icon('chev', 'acc-chev') + '</summary><div class="acc-b">' + guideHtml(e, g, false) + '</div></details>';
+        }
+        h += '<p class="small muted" style="margin-top:14px">Menünamen geprüft im November 2026. Browser benennen Menüs manchmal um; die Schritte bleiben meist gleich.</p>';
+        return h;
+      }
+    });
+  }
+  function copyLink() {
+    var url = location.origin + location.pathname;
+    var done = function () { toast('Link kopiert'); };
+    var fallback = function () {
+      try {
+        var t = document.createElement('textarea'); t.value = url; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+        document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); done();
+      } catch (e) { toast(url); }
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fallback);
+      else fallback();
+    } catch (e) { fallback(); }
   }
 
   /* ================= Drag and drop on the shelf ================= */
@@ -3193,9 +3761,29 @@ BL.NEWS = [
     settings: function () { openSettings(); },
     's-form': function (el) { S.profile.form = el.getAttribute('data-v'); stamp(S.profile); save(); renderSheet(topSheet()); renderView(); },
     's-theme': function (el) { S.settings.theme = el.getAttribute('data-v'); save(); applyTheme(); renderSheet(topSheet()); },
+    's-serieshigh': function () { S.settings.seriesHeight = !S.settings.seriesHeight; save(); renderView(); renderSheet(topSheet()); },
+    's-ambient': function () { S.settings.ambient = S.settings.ambient === false; save(); applyLight(); renderSheet(topSheet()); },
     's-haptics': function () { S.settings.haptics = !S.settings.haptics; save(); renderSheet(topSheet()); buzz(20); },
     's-keytest': function () { testKey(); },
     backup: function () { exportBackup(); },
+    'install-help': function () { openInstallHelp(); },
+    'inst-later': function () { var sp = findSheet('install'); var p = installPrefs(); p.snoozeUntil = BL.now() + BL.INSTALL_SNOOZE_DAYS * BL.DAY; saveInstallPrefs(p); if (sp) sp.handled = true; closeSheet(); },
+    'inst-never': function () { var sp = findSheet('install'); var p = installPrefs(); p.never = true; saveInstallPrefs(p); if (sp) sp.handled = true; closeSheet(); toast('Du findest die Anleitung jederzeit unter Einstellungen → Hilfe'); },
+    'inst-stay': function () { closeSheet(); },
+    'inst-copy': function () { copyLink(); },
+    'inst-go': function () {
+      var ev = UI.bip;
+      if (!ev) return;
+      try {
+        ev.prompt();
+        var after = function (r) {
+          UI.bip = null;
+          if (r && r.outcome === 'accepted') { var p = installPrefs(); p.installed = true; saveInstallPrefs(p); var sp = findSheet('install'); if (sp) { sp.handled = true; closeSheet(); } }
+          else { var s2 = findSheet('install') || findSheet('install-help'); if (s2) renderSheet(s2); }
+        };
+        if (ev.userChoice && ev.userChoice.then) ev.userChoice.then(after, function () { after(null); });
+      } catch (e) { UI.bip = null; }
+    },
     'backup-later': function () { S.settings.backupSnoozeUntil = BL.now() + 3 * BL.DAY; save(); renderView(); },
     restore: function () { var i = $('#file-backup'); i.value = ''; i.click(); },
     news: function () { openNews(); },
@@ -3245,7 +3833,12 @@ BL.NEWS = [
   /* ================= Start ================= */
   function start() {
     load();
+    makeTextures();
+    makeEmbers();
     applyTheme();
+    window.addEventListener('scroll', onScrollTop, { passive: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLight(); });
+    setInterval(applyLight, 5 * 60 * 1000);
     try { history.replaceState({ bl: 0 }, ''); } catch (e) { }
     document.addEventListener('click', onClick);
     document.addEventListener('change', onChange);
@@ -3264,8 +3857,12 @@ BL.NEWS = [
     var silent = BL.newAchievements(S);
     if (silent.length) { for (var a = 0; a < silent.length; a++) S.achievements[silent[a].key] = { at: BL.now() }; save(); }
     renderView();
-    if (!S.profile.id) openWelcome();
-    else if (S.settings.seenVersion !== VERSION) { S.settings.seenVersion = VERSION; save(); openNews(); }
+    var next = function () {
+      if (!S.profile.id) openWelcome();
+      else if (S.settings.seenVersion !== VERSION) { S.settings.seenVersion = VERSION; save(); openNews(); }
+    };
+    /* In the browser the install hint comes first: on the iPhone the app gets its own storage */
+    if (BL.installDue(currentEnv(), installPrefs(), BL.now())) openInstall(next); else next();
     setTimeout(cleanupImages, 6000);
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
       navigator.serviceWorker.register('./sw.js')['catch'](function () { });
