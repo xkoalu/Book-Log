@@ -1,5 +1,5 @@
 /* BOOK.LOG service worker: documents network-first, own files cache-first, cover images cached for offline use. */
-var CACHE = 'booklog-v0.4.0';
+var CACHE = 'booklog-v0.5.0';
 var IMG_CACHE = 'booklog-img';
 var CORE = ['./', './index.html', './manifest.json?v=1', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
