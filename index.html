@@ -10,9 +10,9 @@
 <meta name="description" content="Dein B&uuml;cherregal mit Lesestand, Randnotizen, Lese-Level und Erfolgen.">
 <meta name="theme-color" content="#F4ECDD" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#2A221E" media="(prefers-color-scheme: dark)">
-<link rel="manifest" href="./manifest.json?v=1">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="manifest" href="./manifest.json?v=2">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" href="./icon-192.png?v=2">
 <title>BOOK.LOG</title>
 <style>
 :root {
@@ -460,9 +460,9 @@ body { background-color: var(--bg); background-image: var(--texture); background
 <script>
 /*CORE-START*/
 var BL = {};
-BL.APP_VERSION = '0.5.0';
+BL.APP_VERSION = '0.5.2';
 /* Built-in Google Books key (browser key, restricted to the app address). Empty = no key. */
-BL.GOOGLE_KEY = '';
+BL.GOOGLE_KEY = 'AIzaSyDMLNLsNoioTKqypQzPE8v7Cbtttd8cjcc';
 BL.SCHEMA = 1;
 BL.STORE_KEY = 'booklog_v1_state';
 BL.DAY = 86400000;
@@ -1835,6 +1835,14 @@ BL.dominantColor = function (data, w, h) {
 
 /* ---------- News ---------- */
 BL.NEWS = [
+  { v: '0.5.2', title: 'Neues App-Icon', items: [
+    'Goldene Linien auf fast Schwarz, im Stil von GYM.LOG; auf dunklen und get\u00f6nten Home-Bildschirmen wird es grau wie die anderen Icons',
+    'Auf dem iPhone \u00e4ndert sich ein schon installiertes Icon nicht von selbst: Backup machen, BOOK.LOG vom Home-Bildschirm l\u00f6schen, in Safari neu hinzuf\u00fcgen und das Backup einspielen'
+  ] },
+  { v: '0.5.1', title: 'Eigener Google-Schl\u00fcssel', items: [
+    'BOOK.LOG sucht bei Google Books jetzt mit einem eigenen Schl\u00fcssel: 1.000 Abfragen pro Tag statt des kleinen gemeinsamen Kontingents',
+    'Du musst nichts eintragen; ein eigener Schl\u00fcssel in den Einstellungen ersetzt ihn weiterhin f\u00fcr dein Ger\u00e4t'
+  ] },
   { v: '0.5.0', title: 'ISBN per Kamera', items: [
     'Unter Buch hinzuf\u00fcgen \u2192 ISBN kannst du den Strichcode auf der R\u00fcckseite scannen',
     'Das Lesen passiert auf dem Ger\u00e4t und klappt auch offline, die Bilder werden nirgends hingeschickt',
